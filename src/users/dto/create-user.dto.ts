@@ -11,13 +11,13 @@ export class CreateUserDto {
   @IsNotEmpty()
   @Exclude()
   password: string;
-}
 
-export class ResponseDto extends CreateUserDto {
   @IsString()
   @Expose()
   username: string;
+}
 
+export class ResponseDto extends CreateUserDto {
   @IsString()
   @Expose()
   bio: string;
