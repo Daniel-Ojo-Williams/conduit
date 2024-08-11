@@ -1,4 +1,5 @@
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
 
 export default class TypeOrmConfig {
@@ -10,8 +11,15 @@ export default class TypeOrmConfig {
       username: config.get('DB_USERNAME'),
       password: config.get('DB_PASSWORD'),
       database: config.get<string>('DB_NAME'),
-      entities: [__dirname + '/../**/*.entity.ts'],
+      entities: [__dirname + '/../**/*.entity.js'],
       synchronize: false,
     };
   }
 }
+
+export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
+  imports: [ConfigModule],
+  useFactory: async (config: ConfigService): Promise<DataSourceOptions> =>
+    TypeOrmConfig.getConfigOptions(config),
+  inject: [ConfigService],
+};
