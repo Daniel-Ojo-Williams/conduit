@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { User } from '../users/entities/user.entity';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ListArticleQueryDto } from './dto/list-article-query.dto';
 
 @Injectable()
 export class ArticleService {
@@ -26,6 +27,27 @@ export class ArticleService {
       .leftJoinAndSelect('a.author', 'author.id')
       .where('a.slug = :slug', { slug })
       .getOne();
+  }
+
+  async listArticles(query?: ListArticleQueryDto) {
+    const offset = query?.offset || 0;
+    const limit = query?.limit || 20;
+    const author = query?.author;
+    const tag = query?.tag;
+
+    const listQuery = this.article
+      .createQueryBuilder('a')
+      .leftJoinAndSelect('a.author', 'author')
+      .orderBy('a.createdAt', 'DESC')
+      .limit(limit)
+      .skip(offset);
+
+    if (author)
+      listQuery.where('author.username = :username', { username: author });
+
+    if (tag) listQuery.andWhere(':tag = ANY(a.tagList)', { tag });
+
+    return await listQuery.getMany();
   }
 
   async updateArticle(slug: string, updateArticleDto: UpdateArticleDto) {

@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { AuthReq } from '../auth/types';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Public } from '../guards/auth.guard';
+import { ListArticleQueryDto } from './dto/list-article-query.dto';
 
 @Controller('articles')
 export class ArticleController {
@@ -26,6 +36,12 @@ export class ArticleController {
     @Body() updateArticleDto: UpdateArticleDto,
   ) {
     return this.articleService.updateArticle(slug, updateArticleDto);
+  }
+
+  @Public()
+  @Get()
+  async listArticles(@Query() query?: ListArticleQueryDto) {
+    return this.articleService.listArticles(query);
   }
 
   @Public()
