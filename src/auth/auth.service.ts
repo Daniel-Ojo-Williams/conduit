@@ -25,7 +25,6 @@ export class AuthService {
     } catch (error) {
       if (error instanceof QueryFailedError) {
         const dbError = <DatabaseError>error.driverError;
-        console.log(dbError.code);
         switch (dbError.code) {
           case '23505':
             throw new ConflictException({
@@ -36,7 +35,7 @@ export class AuthService {
     }
   }
 
-  async login(createAuthDto: CreateAuthDto) {
+  async login(createAuthDto: Omit<CreateAuthDto, 'username'>) {
     const user = await this.Users.findUserByEmail(createAuthDto.email);
 
     if (!user)
