@@ -1,10 +1,4 @@
-import { Type } from 'class-transformer';
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateArticleDto {
   @IsNotEmpty()
@@ -20,7 +14,5 @@ export class CreateArticleDto {
   body: string;
 
   @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => String)
   tagList?: Array<string>;
 }
