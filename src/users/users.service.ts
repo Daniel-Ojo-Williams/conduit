@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { plainToInstance } from 'class-transformer';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +17,7 @@ export class UsersService {
     let user = new User();
     user.email = createUserDto.email;
     user.password = createUserDto.password;
-    user.username = createUserDto.email.split('@')[0];
+    user.username = createUserDto.username;
     user = await this.users.save(user);
     return plainToInstance(ResponseDto, user);
   }
@@ -25,7 +26,22 @@ export class UsersService {
     return this.users.findOne({ where: { email } });
   }
 
-  findUserByID(id: string) {
-    return `This action returns a #${id} user`;
+  async findUserByID(id: string) {
+    const user = await this.users
+      .createQueryBuilder('u')
+      .where('u.id = :id', { id })
+      .getOne();
+
+    return plainToInstance(ResponseDto, user);
+  }
+
+  async updateUser(id: string, updateUser: UpdateUserDto) {
+    await this.users
+      .createQueryBuilder('u')
+      .update(updateUser)
+      .where('id = :id', { id })
+      .execute();
+
+    return await this.findUserByID(id);
   }
 }
