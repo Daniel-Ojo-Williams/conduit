@@ -1,6 +1,6 @@
-import { Controller, Get, Body, Patch, Req, UsePipes } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { NoEmptyBoyPipe, UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthReq } from 'src/auth/types';
 
 @Controller('user')
@@ -15,7 +15,6 @@ export class UsersController {
   }
 
   @Patch()
-  @UsePipes(new NoEmptyBoyPipe())
   async updateUser(@Req() req: AuthReq, @Body() updateUser: UpdateUserDto) {
     const { sub } = req.user;
     const user = await this.usersService.updateUser(sub, updateUser);

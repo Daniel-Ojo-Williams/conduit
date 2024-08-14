@@ -22,8 +22,12 @@ export class UsersService {
     return plainToInstance(ResponseDto, user);
   }
 
-  findUserByEmail(email: string) {
-    return this.users.findOne({ where: { email } });
+  async findUserByEmail(email: string) {
+    return await this.users
+      .createQueryBuilder('u')
+      .addSelect('u.password')
+      .where('u.email = :email', { email })
+      .getOne();
   }
 
   async findUserByID(id: string) {
