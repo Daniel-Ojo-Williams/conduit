@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { Public } from '../guards/auth.guard';
@@ -14,6 +14,7 @@ export class AuthController {
     return this.authService.register(createAuthDto);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Public()
   @Post('login')
   login(@Body() createAuthDto: LoginDto) {
