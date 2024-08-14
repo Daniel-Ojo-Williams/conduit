@@ -7,6 +7,7 @@ import { typeOrmConfig } from './config/orm.config';
 import { validateEnv } from './config/env.validation';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
+import { ArticleModule } from './article/article.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthGuard } from './guards/auth.guard';
     TypeOrmModule.forRootAsync(typeOrmConfig),
     AuthModule,
     UsersModule,
+    ArticleModule,
   ],
   controllers: [],
   providers: [
