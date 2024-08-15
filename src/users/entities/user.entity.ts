@@ -6,7 +6,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Article } from 'src/article/entities/article.entity';
+import { Article } from '../../article/entities/article.entity';
+import { Connections } from './connections.entity';
 
 @Entity()
 export class User {
@@ -36,4 +37,10 @@ export class User {
 
   @OneToMany(() => Article, (article) => article.author)
   articles: Article[];
+
+  @OneToMany(() => Connections, (conn) => conn.follower)
+  followers: Connections[];
+
+  @OneToMany(() => Connections, (conn) => conn.following)
+  following: Connections[];
 }
