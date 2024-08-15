@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
@@ -28,7 +29,7 @@ export class UsersService {
     user.password = createUserDto.password;
     user.username = createUserDto.username;
     user = await this.users.save(user);
-    return plainToInstance(ResponseDto, user);
+    return user;
   }
 
   async findUserByEmail(email: string) {
@@ -66,7 +67,7 @@ export class UsersService {
 
       await this.conn.save({ followerId: accountUSerId, followingId: user.id });
 
-      return await this.getProfile(accountUSerId, accountUsername);
+      return await this.getProfile(accountUSerId, followingUsername);
     } catch (error) {
       if (error instanceof QueryFailedError) {
         const dbError = <DatabaseError>error.driverError;
@@ -80,29 +81,48 @@ export class UsersService {
     }
   }
 
-  async getProfile(currentUserId: string, username: string) {
-    const user = await this.users
-      .createQueryBuilder('u')
-      .leftJoinAndSelect('u.followers', 'followers')
-      .where('u.username = :username', { username })
-      .getOne();
+  async unfollowUser(username: string, currentUserId: string) {
+    const user = await this.getProfile(currentUserId, username);
 
-    if (!user)
+    if (!user) throw new BadRequestException('You do not follow this user');
+
+    await this.conn.delete({
+      followerId: currentUserId,
+      followingId: user.profile.id,
+    });
+
+    return this.getProfile(currentUserId, username);
+  }
+
+  async getProfile(currentUserId: string, username: string) {
+    const result = await this.users
+      .createQueryBuilder('u')
+      .addSelect(
+        `EXISTS(SELECT 1 FROM connections AS c WHERE "followingId" = u.id AND "followerId" = :followerId)`,
+        'follow',
+      )
+      .setParameter('followerId', currentUserId)
+      .where('u.username = :username', { username })
+      .getRawOne<User & { follow: boolean }>();
+
+    if (!result)
       throw new HttpException(
         { message: ['User not found'] },
         HttpStatus.NOT_FOUND,
       );
 
-    const following = user.followers.some(
-      (follower) => follower.followerId === currentUserId,
+    const user = Object.keys(result).reduce(
+      (acc, key) => {
+        const newKey = key.replace('u_', '');
+        acc[newKey] = result[key];
+        return acc;
+      },
+      {} as typeof result,
     );
-
-    delete user.followers;
 
     return {
       profile: {
         ...user,
-        following,
       },
     };
   }

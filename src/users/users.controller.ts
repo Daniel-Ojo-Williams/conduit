@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Post,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -24,6 +25,16 @@ export class UsersController {
     return user;
   }
 
+  @Get(':username')
+  async getUserProfile(
+    @Param('username') username: string,
+    @Req() req: AuthReq,
+  ) {
+    const { sub } = req.user;
+    const user = await this.usersService.getProfile(sub, username);
+    return user;
+  }
+
   @Patch()
   async updateUser(@Req() req: AuthReq, @Body() updateUser: UpdateUserDto) {
     const { sub } = req.user;
@@ -37,5 +48,12 @@ export class UsersController {
   async followUser(@Req() req: AuthReq, @Param('username') username: string) {
     const { sub, username: accountUsername } = req.user;
     return this.usersService.followUser(sub, accountUsername, username);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Delete(':username/follow')
+  async unFollowUser(@Req() req: AuthReq, @Param('username') username: string) {
+    const { sub } = req.user;
+    return this.usersService.unfollowUser(username, sub);
   }
 }
