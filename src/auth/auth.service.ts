@@ -54,7 +54,11 @@ export class AuthService {
       });
 
     // jwt token
-    const payload: UserPayload = { sub: user.id, email: user.email };
+    const payload: UserPayload = {
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+    };
     const token = await this.jwt.signAsync(payload);
     const userObj = plainToInstance(ResponseDto, user);
 

@@ -2,12 +2,14 @@ import { User } from './user.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
+@Index(['followerId', 'followingId'], { unique: true })
 export class Connections {
   @PrimaryGeneratedColumn('uuid')
   id: string;
