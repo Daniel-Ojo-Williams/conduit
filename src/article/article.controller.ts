@@ -44,6 +44,15 @@ export class ArticleController {
     return this.articleService.listArticles(query);
   }
 
+  @Get('feed')
+  async feedArticles(
+    @Req() req: AuthReq,
+    @Query() query?: ListArticleQueryDto,
+  ) {
+    const { sub } = req.user;
+    return this.articleService.feedArticles(sub, query);
+  }
+
   @Public()
   @Get(':slug')
   async getArticle(@Param('slug') slug: string) {

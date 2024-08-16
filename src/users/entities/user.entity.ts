@@ -39,8 +39,8 @@ export class User {
   articles: Article[];
 
   @OneToMany(() => Connections, (conn) => conn.follower)
-  followers: Connections[];
+  followers: User[];
 
   @OneToMany(() => Connections, (conn) => conn.following)
-  following: Connections[];
+  following: User[];
 }

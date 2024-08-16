@@ -60,4 +60,19 @@ export class ArticleService {
 
     return await this.getArticle(slug);
   }
+
+  async feedArticles(accountUserId: string, query: ListArticleQueryDto) {
+    const limit = query?.limit || 10;
+    const offset = query?.offset || 0;
+
+    const articles = await this.article
+      .createQueryBuilder('a')
+      .leftJoin('connections', 'c', 'c.followingId = a.authorId')
+      .where('c.followerId = :userId', { userId: accountUserId })
+      .skip(offset)
+      .limit(limit)
+      .getMany();
+
+    return articles;
+  }
 }
