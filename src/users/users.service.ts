@@ -29,7 +29,7 @@ export class UsersService {
     user.password = createUserDto.password;
     user.username = createUserDto.username;
     user = await this.users.save(user);
-    return user;
+    return plainToInstance(ResponseDto, user);
   }
 
   async findUserByEmail(email: string) {

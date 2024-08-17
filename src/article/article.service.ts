@@ -6,11 +6,16 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { User } from '../users/entities/user.entity';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ListArticleQueryDto } from './dto/list-article-query.dto';
+import { ArticleComment } from './entities/article-comments.entity';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Injectable()
 export class ArticleService {
   constructor(
-    @InjectRepository(Article) private readonly article: Repository<Article>,
+    @InjectRepository(Article)
+    private readonly article: Repository<Article>,
+    @InjectRepository(ArticleComment)
+    private readonly comments: Repository<ArticleComment>,
   ) {}
 
   async createArticle(authorId: string, createArticleDto: CreateArticleDto) {
@@ -74,5 +79,35 @@ export class ArticleService {
       .getMany();
 
     return articles;
+  }
+
+  async addComment(
+    createCommentDto: CreateCommentDto,
+    authorId: string,
+    articleSlug: string,
+  ) {
+    const comment = this.comments.create(createCommentDto);
+    comment.article = { slug: articleSlug } as Article;
+    comment.author = { id: authorId } as User;
+
+    const { id } = await this.comments.save(comment);
+
+    return await this.comments
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.author', 'a')
+      .where('c.id = :id', { id })
+      .getOne();
+  }
+
+  async getArticleComments(articleSlug: string) {
+    return await this.comments
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.author', 'a')
+      .where('c.articleSlug = :articleSlug', { articleSlug })
+      .getMany();
+  }
+
+  async deleteComment(id: string) {
+    await this.comments.delete({ id });
   }
 }

@@ -1,5 +1,6 @@
 import { User } from '../../users/entities/user.entity';
 import * as _crypto from 'node:crypto';
+import { ArticleComment } from './article-comments.entity';
 import {
   BeforeInsert,
   Column,
@@ -7,6 +8,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -47,6 +49,9 @@ export class Article {
   @ManyToOne(() => User, (user) => user.articles)
   @JoinColumn()
   author: User;
+
+  @OneToMany(() => ArticleComment, (comment) => comment)
+  comments: ArticleComment[];
 
   @BeforeInsert()
   createSlug() {

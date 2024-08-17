@@ -10,8 +10,10 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  register(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.register(createAuthDto);
+  async register(@Body() createAuthDto: { user: CreateAuthDto }) {
+    const user = await this.authService.register(createAuthDto.user);
+
+    return { user };
   }
 
   @HttpCode(HttpStatus.OK)
