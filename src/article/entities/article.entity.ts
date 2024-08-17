@@ -7,6 +7,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
@@ -49,6 +51,20 @@ export class Article {
   @ManyToOne(() => User, (user) => user.articles)
   @JoinColumn()
   author: User;
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'favorite_article',
+    joinColumn: {
+      name: 'articleSlug',
+      referencedColumnName: 'slug',
+    },
+    inverseJoinColumn: {
+      name: 'userId',
+      referencedColumnName: 'id',
+    },
+  })
+  favoritedBy: User[];
 
   @OneToMany(() => ArticleComment, (comment) => comment)
   comments: ArticleComment[];

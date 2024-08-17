@@ -110,4 +110,23 @@ export class ArticleService {
   async deleteComment(id: string) {
     await this.comments.delete({ id });
   }
+
+  // -| This adds an article to the list of a user's favorites and adds a user to the list of those that has favorited the article
+  async favoriteArticle(articleSlug: string, userId: string) {
+    const user = { id: userId } as User;
+    await this.article
+      .createQueryBuilder('c')
+      .relation('favoritedBy')
+      .of(articleSlug)
+      .add(user);
+  }
+
+  async unfavoriteArticle(articleSlug: string, userId: string) {
+    const user = { id: userId } as User;
+    await this.article
+      .createQueryBuilder('c')
+      .relation('favoritedBy')
+      .of(articleSlug)
+      .remove(user);
+  }
 }

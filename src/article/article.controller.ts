@@ -12,6 +12,7 @@ import {
   Post,
   Query,
   Req,
+  UseFilters,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -20,6 +21,7 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 import { Public } from '../guards/auth.guard';
 import { ListArticleQueryDto } from './dto/list-article-query.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { HandleDbError } from '../filters/dbError.filter';
 
 @Controller('articles')
 export class ArticleController {
@@ -73,6 +75,21 @@ export class ArticleController {
   ) {
     const { sub } = req.user;
     return this.articleService.addComment(addComment, sub, slug);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseFilters(new HandleDbError('favoriteArticle'))
+  @Post(':slug/favorite')
+  async favoriteArticle(@Req() req: AuthReq, @Param('slug') slug: string) {
+    const { sub } = req.user;
+    await this.articleService.favoriteArticle(slug, sub);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':slug/favorite')
+  async unfavoriteArticle(@Req() req: AuthReq, @Param('slug') slug: string) {
+    const { sub } = req.user;
+    await this.articleService.unfavoriteArticle(slug, sub);
   }
 
   @Get(':slug/comments')
