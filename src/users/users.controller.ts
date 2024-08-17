@@ -54,6 +54,7 @@ export class UsersController {
   @Delete(':username/follow')
   async unFollowUser(@Req() req: AuthReq, @Param('username') username: string) {
     const { sub } = req.user;
-    return this.usersService.unfollowUser(username, sub);
+    const user = await this.usersService.unfollowUser(username, sub);
+    return { user };
   }
 }
