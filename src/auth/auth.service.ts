@@ -1,12 +1,6 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UsersService } from '../users/users.service';
-import { QueryFailedError } from 'typeorm';
-import { DatabaseError } from 'pg-protocol';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
@@ -20,19 +14,7 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
   async register(createAuthDto: CreateAuthDto) {
-    try {
-      return await this.Users.addNewUser(createAuthDto);
-    } catch (error) {
-      if (error instanceof QueryFailedError) {
-        const dbError = <DatabaseError>error.driverError;
-        switch (dbError.code) {
-          case '23505':
-            throw new ConflictException({
-              message: `Email <${createAuthDto.email}> already exists`,
-            });
-        }
-      }
-    }
+    return await this.Users.addNewUser(createAuthDto);
   }
 
   async login(createAuthDto: Omit<CreateAuthDto, 'username'>) {
