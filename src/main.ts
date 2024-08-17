@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
 import { ValidateEmptyBody } from './pipes/ValidateEmptyBody.pipe';
 
 async function bootstrap() {
@@ -13,6 +13,10 @@ async function bootstrap() {
     new ValidationPipe({
       forbidNonWhitelisted: true,
       whitelist: true,
+      exceptionFactory: (errors) => {
+        const formattedErrors = Object.values(errors[0].constraints).join(', ');
+        return new UnprocessableEntityException(formattedErrors);
+      },
     }),
     new ValidateEmptyBody(),
   );
